@@ -1,143 +1,138 @@
-// import React, { useRef,useEffect } from 'react'
-// import './App.css'
-   
+import React, { useRef,useEffect } from 'react'
+import './App.css'
+const App = () => {
 
+  let canvas=useRef()
+  useEffect(() => {                             
+    const context = canvas.current.getContext('2d'); 
+let cellSize = 50;
+let boardWidth = 1400;
+let boardHeight = 700;
 
-// const App = () => {
+let snakeCells = [[0, 0]];
 
-//   let canvas=useRef()
-//   useEffect(() => {                             
-//     const context = canvas.current.getContext('2d'); 
-// let cellSize = 50;
-// let boardWidth = 1400;
-// let boardHeight = 700;
+let direction = 'right';
 
-// let snakeCells = [[0, 0]];
+let gameOver = false;
 
-// let direction = 'right';
+let foodCells = generateRandomCells();
 
-// let gameOver = false;
+let score = 0;
 
-// let foodCells = generateRandomCells();
+let intervalId = setInterval(function() {
+  update();
+  draw();
+}, 100);
 
-// let score = 0;
+document.addEventListener('keydown', function(event) {
+  if (event.key === 'ArrowDown')
+    direction = 'down';
+  else if (event.key === 'ArrowUp')
+    direction = 'up';
+  else if (event.key === 'ArrowLeft')
+    direction = 'left';
+  else
+    direction = 'right';
+})
 
-// let intervalId = setInterval(function() {
-//   update();
-//   draw();
-// }, 100);
+// draw the snake
+function draw() {
 
-// document.addEventListener('keydown', function(event) {
-//   if (event.key === 'ArrowDown')
-//     direction = 'down';
-//   else if (event.key === 'ArrowUp')
-//     direction = 'up';
-//   else if (event.key === 'ArrowLeft')
-//     direction = 'left';
-//   else
-//     direction = 'right';
-// })
+  if (gameOver === true) {
+    clearInterval(intervalId);
+   context.fillStyle = 'red';
+   context.font = '50px sans-serif';
+   context.fillText('Game Over!!', 200, 200);
+    return;
+  }
 
-// // draw the snake
-// function draw() {
-
-//   if (gameOver === true) {
-//     clearInterval(intervalId);
-//    context.fillStyle = 'red';
-//    context.font = '50px sans-serif';
-//    context.fillText('Game Over!!', 200, 200);
-//     return;
-//   }
-
-//   // clear canvas
-//  context.clearRect(0, 0, boardWidth, boardHeight);
+  // clear canvas
+ context.clearRect(0, 0, boardWidth, boardHeight);
   
-//   // draw snake
-//   for (let cell of snakeCells) {
-//    context.fillStyle = 'brown';
-//    context.fillRect(cell[0], cell[1], cellSize, cellSize);
-//    context.strokeStyle = 'golden';
-//    context.strokeRect(cell[0], cell[1], cellSize, cellSize);
-//   }
+  // draw snake
+  for (let cell of snakeCells) {
+   context.fillStyle = 'brown';
+   context.fillRect(cell[0], cell[1], cellSize, cellSize);
+   context.strokeStyle = 'golden';
+   context.strokeRect(cell[0], cell[1], cellSize, cellSize);
+  }
 
-//   // draw food
-//  context.fillStyle = 'green';
-//  context.fillRect(foodCells[0], foodCells[1], cellSize, cellSize);
+  // draw food
+ context.fillStyle = 'green';
+ context.fillRect(foodCells[0], foodCells[1], cellSize, cellSize);
 
-//   // draw score
-//  context.font = '20px sans-serif';
-//  context.fillText(`Score: ${score}`, 20, 20);
-// }
+  // draw score
+ context.font = '20px sans-serif';
+ context.fillText(`Score: ${score}`, 20, 20);
+}
 
-// // update snake cells
-// function update() {
-//   let headX = snakeCells[snakeCells.length - 1][0];
-//   let headY = snakeCells[snakeCells.length - 1][1];
+// update snake cells
+function update() {
+  let headX = snakeCells[snakeCells.length - 1][0];
+  let headY = snakeCells[snakeCells.length - 1][1];
 
-//   let newHeadX;
-//   let newHeadY;
+  let newHeadX;
+  let newHeadY;
 
-//   if (direction === 'right') {
-//     newHeadX = headX + cellSize;
-//     newHeadY = headY;
+  if (direction === 'right') {
+    newHeadX = headX + cellSize;
+    newHeadY = headY;
 
-//     if (newHeadX === boardWidth) {
-//       gameOver = true;
-//     }
-//   } 
-//   else if (direction === 'up') {
-//     newHeadX = headX;
-//     newHeadY = headY - cellSize;
+    if (newHeadX === boardWidth) {
+      gameOver = true;
+    }
+  } 
+  else if (direction === 'up') {
+    newHeadX = headX;
+    newHeadY = headY - cellSize;
 
-//     if (newHeadY < 0) {
-//       gameOver = true;
-//     }
-//   }
-//   else if (direction === 'down') {
-//     newHeadX = headX;
-//     newHeadY = headY + cellSize;
+    if (newHeadY < 0) {
+      gameOver = true;
+    }
+  }
+  else if (direction === 'down') {
+    newHeadX = headX;
+    newHeadY = headY + cellSize;
 
-//     if (newHeadY === boardHeight) {
-//       gameOver = true;
-//     }
-//   }
-//   else {
-//     newHeadX = headX - cellSize;
-//     newHeadY = headY
+    if (newHeadY === boardHeight) {
+      gameOver = true;
+    }
+  }
+  else {
+    newHeadX = headX - cellSize;
+    newHeadY = headY
     
-//     if (newHeadX < 0) {
-//       gameOver = true;
-//     }
-//   }
+    if (newHeadX < 0) {
+      gameOver = true;
+    }
+  }
 
-//   snakeCells.push([newHeadX, newHeadY]);
+  snakeCells.push([newHeadX, newHeadY]);
 
-//   if (newHeadX === foodCells[0] && newHeadY === foodCells[1]) {
-//     foodCells = generateRandomCells();
-//     score += 1;
-//   } else {
-//     snakeCells.shift();
-//   }
-// }
+  if (newHeadX === foodCells[0] && newHeadY === foodCells[1]) {
+    foodCells = generateRandomCells();
+    score += 1;
+  } else {
+    snakeCells.shift();
+  }
+}
 
-// function generateRandomCells() {
-//   return [
-//     Math.round((Math.random()*(boardWidth - cellSize))/cellSize)*cellSize,
-//     Math.round((Math.random()*(boardHeight - cellSize))/cellSize)*cellSize
-//   ]
-// }
-//   },[]);
+function generateRandomCells() {
+  return [
+    Math.round((Math.random()*(boardWidth - cellSize))/cellSize)*cellSize,
+    Math.round((Math.random()*(boardHeight - cellSize))/cellSize)*cellSize
+  ]
+}
+  },[]);
 
-//   return (
-//     <div>
+  return (
+    <div>
+      <canvas  ref={canvas} height='700' width='1400'></canvas>
+    </div>
+  )
+}
 
-
-//       <canvas  ref={canvas} height='700' width='1400'></canvas>
-//     </div>
-//   )
-// }
-
-// export default App
+export default App
 
 
 
@@ -160,8 +155,6 @@
 //            {/* <p> {count } </p> */}
 //            <h3> {count}</h3>
  
-
-
 //     </div>
 //   )
 // }
@@ -234,29 +227,29 @@
 // export default App
 
 
-import React from 'react'
-import NavBar from './NavBar'
-import {Routes, Route}  from 'react-router-dom'
-import Home from './Home'
-import ContactUs from './ContactUs'
-import AboutUs from './AboutUs'
+// import React from 'react'
+// import NavBar from './NavBar'
+// import {Routes, Route}  from 'react-router-dom'
+// import Home from './Home'
+// import ContactUs from './ContactUs'
+// import AboutUs from './AboutUs'
 
-const App = () => {
-  return (
-    <div>
-      <NavBar/>
-     <Routes>
+// const App = () => {
+//   return (
+//     <div>
+//       <NavBar/>
+//      <Routes>
 
-      <Route   path='/'  element={<Home/>}/>
-      <Route   path='/contact'  element={<ContactUs/>}/>
-      <Route   path='/about'  element={<AboutUs/>}/>
-
-
+//       <Route   path='/'  element={<Home/>}/>
+//       <Route   path='/contact'  element={<ContactUs/>}/>
+//       <Route   path='/about'  element={<AboutUs/>}/>
 
 
-     </Routes>
-    </div>
-  )
-}
 
-export default App
+
+//      </Routes>
+//     </div>
+//   )
+// }
+
+// export default App
